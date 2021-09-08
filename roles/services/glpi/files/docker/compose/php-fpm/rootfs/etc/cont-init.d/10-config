@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+# permissions
+chown -R www-data:www-data /app

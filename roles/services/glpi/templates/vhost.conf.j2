@@ -1,0 +1,83 @@
+<VirtualHost *:80>
+
+    ServerName {{ glpi_vhost_servername }}
+    ServerAlias {{ glpi_vhost_serveralias }}
+    ServerAdmin {{ glpi_vhost_serveradmin }}
+
+    SetEnvIf X-Forwarded-Proto https HTTPS=on
+
+    SetEnvIf Request_URI "\.(ogg|ogv|svg|svgz|eot|otf|woff|woff2|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|swf|map|js?.|css?.)$" StaticContent
+    CustomLog /proc/self/fd/1 proxy env=!StaticContent
+
+    Header set X-XSS-Protection "1; mode=block"
+    Header always edit Set-Cookie (.*) "$1; HTTPOnly"
+    Header always edit Set-Cookie (.*) "$1; Secure" env=https
+{% if inventory_env != "test" %}
+
+    <If "%{HTTP_HOST} != '{{ glpi_vhost_servername }}'">
+        Redirect "/" "https://{{ glpi_vhost_servername }}/index.php"
+    </If>
+    <Else>
+        RedirectMatch "^/?$" "/index.php"
+    </Else>
+{% endif %}
+
+    DocumentRoot "/app"
+
+    # Alias "/wiki" "/app/wiki"
+    # Alias "/dbadm" "/app/dbadm"
+    Alias "/" "/app/glpi/"
+
+    <Directory "/app">
+        Options -Indexes -Includes
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <Macro MacroGssapiConfig $basicauth>
+        AuthType GSSAPI
+        AuthName "Active Directory SSO"
+        GssapiBasicAuth $basicauth
+        GssapiBasicAuthMech krb5
+        GssapiAllowedMech krb5
+        GssapiNegotiateOnce On
+        GssapiLocalName On
+        GssapiCredStore keytab:/etc/krb5.keytab
+    </Macro>
+
+    <Macro MacroRestrictedAccess>
+        <RequireAll>
+{% for addr in glpi_vhost_externalips %}
+            Require not ip {{ addr }}
+{% endfor %}
+            Require all granted
+        </RequireAll>
+        Require valid-user
+    </Macro>
+
+    <Macro MacroSSOConfig>
+        <Limit GET>
+            Use MacroGssapiConfig Off
+            Use MacroRestrictedAccess
+            ErrorDocument 401 /index.php?noAUTO=1
+        </Limit>
+    </Macro>
+{% if inventory_env != "test" %}
+
+    <Location "/index.php">
+        <If "%{QUERY_STRING} !~ /^(?i)noAUTO=1/">
+            Use MacroSSOConfig
+        </If>
+    </Location>
+
+    <Location "/front/login.php">
+        Use MacroSSOConfig
+    </Location>
+{% endif %}
+
+    <LocationMatch "^/(wiki|dbadm)">
+        Use MacroGssapiConfig On
+        Require valid-user
+    </LocationMatch>
+
+</VirtualHost>

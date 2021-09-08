@@ -1,0 +1,55 @@
+---
+- name: Create app folder
+  file:
+    path: "{{ app_path }}"
+    state: directory
+    recurse: yes
+
+- name: Copy app files
+  copy:
+    src: files/docker/
+    dest: "{{ app_path }}"
+    mode: 0644
+    directory_mode: 0755
+  register: copy_app_files
+  notify: restart containers
+
+- name: Copy templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  register: copy_templates
+  no_log: true
+  loop:
+    - { src: vhost.conf.j2, dest: "{{ app_path }}/compose/httpd/rootfs/etc/apache2/vhost.conf" }
+    - { src: .env.j2, dest: "{{ app_path }}/.env" }
+
+- name: Pull images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+    force_source: yes
+    state: present
+  loop: "{{ images_list }}"
+  register: pull_images
+  retries: 3
+  delay: 10
+  until: pull_images is not failed
+  tags: upgrade
+
+- name: Build and restart app containers
+  docker_compose:
+    project_src: "{{ app_path }}"
+    build: yes
+    state: present
+  register: build_containers
+  when: copy_app_files.changed or copy_templates.changed or pull_images.changed
+  tags: upgrade
+
+- name: Install GLPI
+  include_tasks:
+    file: glpi.yml
+    apply:
+      tags: glpi:install
+  tags: glpi:install

@@ -1,0 +1,136 @@
+---
+- name: Check if GLPI installed version marker exists
+  stat:
+    path: "{{ app_data_path }}/glpi_{{ glpi_version }}_installed"
+  register: glpi_version_marker
+
+- name: Check if GLPI dir exists and non empty
+  command: "ls {{ app_data_path }}/glpi"
+  register: glpi_dir
+  changed_when: false
+  failed_when: false
+
+- block:
+    - name: Download and extract GLPI
+      unarchive:
+        src: "{{ glpi_url }}"
+        dest: "{{ app_data_path }}"
+        remote_src: yes
+      register: glpi_source
+      retries: 3
+      delay: 10
+      until: glpi_source is not failed
+
+    - name: Delete plugins dir
+      file:
+        path: "{{ glpi_plugins_path }}"
+        state: absent
+
+    - name: Create plugins dir
+      file:
+        path: "{{ glpi_plugins_path }}"
+        state: directory
+        owner: 82
+        group: 82
+        recurse: yes
+
+    - name: Download and extract plugins
+      unarchive:
+        src: "{{ item.url }}"
+        dest: "{{ glpi_plugins_path }}"
+        remote_src: yes
+        creates: "{{ glpi_plugins_path }}/{{ item.name }}"
+      loop: "{{ glpi_plugins }}"
+      register: glpi_plugins_source
+      retries: 3
+      delay: 10
+      until: glpi_plugins_source is not failed
+      no_log: true
+
+    - name: Rename Dashboard plugin dir
+      shell: "mv {{ glpi_plugins_path }}/glpi-dashboard-* {{ glpi_plugins_path }}/dashboard"
+      args:
+        removes: "{{ glpi_plugins_path }}/glpi-dashboard-*"
+        creates: "{{ glpi_plugins_path }}/dashboard"
+
+    - name: chown www-data
+      command: docker exec glpi_php-fpm_1 sh -c '{{ item }}'
+      register: result
+      changed_when: result.stdout | length > 0
+      loop:
+        - chown -c -R www-data:www-data /app
+      no_log: true
+
+    - name: DB - Install GLPI
+      command: >
+        docker exec glpi_php-fpm_1 php /app/glpi/bin/console db:install
+          -H mariadb
+          -d {{ glpi_mysql_user }}
+          -u {{ glpi_mysql_user }}
+          -p {{ glpi_mysql_password }}
+          -L ru_RU
+      args:
+        creates: "{{ app_data_path }}/glpi/config/config_db.php"
+      no_log: true
+
+    - name: DB - Initialize and grant access to timezones  # GLPI 9.5
+      command: docker exec glpi_mariadb_1 sh -c '{{ item }}'
+      changed_when: true
+      loop:
+        - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p{{ glpi_mysql_root_password }} mysql
+        - mysql -u root -p{{ glpi_mysql_root_password }} -e "GRANT SELECT ON mysql.time_zone_name TO '{{ glpi_mysql_user }}'"
+        - mysql -u root -p{{ glpi_mysql_root_password }} -e "FLUSH PRIVILEGES"
+      no_log: true
+
+    - name: DB - Update
+      command: docker exec glpi_php-fpm_1 sh -c '{{ item }}'
+      register: result
+      changed_when: '"Миграция не требуется." not in result.stdout'
+      loop:
+        - php /app/glpi/bin/console db:update
+
+    - name: Install/update/activate plugins
+      command: docker exec glpi_php-fpm_1 sh -c '{{ item }}'
+      register: result
+      changed_when: result.stdout | length > 0
+      loop:
+        - php /app/glpi/bin/console glpi:plugin:activate -a  # FIXME
+        - php /app/glpi/bin/console glpi:plugin:install -a -u glpi
+        - php /app/glpi/bin/console glpi:plugin:activate -a
+
+    - name: chown www-data
+      command: docker exec glpi_php-fpm_1 sh -c '{{ item }}'
+      register: result
+      changed_when: result.stdout | length > 0
+      loop:
+        - chown -c -R www-data:www-data /app
+      no_log: true
+
+    - name: DB - Migrate timestamps  # GLPI 9.5
+      command: docker exec glpi_php-fpm_1 sh -c '{{ item }}'
+      register: result
+      changed_when: '"Миграция не требуется." not in result.stdout'
+      loop:
+        - php /app/glpi/bin/console glpi:migration:timestamps
+
+    - name: Delete install/install.php
+      file:
+        path: "{{ app_data_path }}/glpi/install/install.php"
+        state: absent
+
+    - name: Delete old version marker
+      shell: "rm -vrf {{ app_data_path }}/glpi_*_installed"
+      args:
+        warn: no
+      register: result
+      changed_when: result.stdout | length > 0
+
+    - name: Create installed version marker
+      file:
+        path: "{{ app_data_path }}/glpi_{{ glpi_version }}_installed"
+        state: touch
+        mode: 0644
+
+  when: >
+    (not glpi_version_marker.stat.exists) or
+    (glpi_dir.stdout | length == 0)

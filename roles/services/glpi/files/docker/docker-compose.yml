@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  mariadb:
+    build: ./compose/mariadb
+    volumes:
+      - ./data/db:/var/lib/mysql
+    env_file: .env
+    restart: unless-stopped
+
+  php-fpm:
+    build: ./compose/php-fpm
+    volumes:
+      - ./data/app:/app
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+  httpd:
+    build: ./compose/httpd
+    ports:
+      - "80:80"
+    volumes:
+      - ./data/app:/app
+      - /etc/krb5.conf:/etc/krb5.conf:ro
+      - /etc/krb5.keytab:/etc/krb5.keytab:ro
+    depends_on:
+      - php-fpm
+    restart: unless-stopped

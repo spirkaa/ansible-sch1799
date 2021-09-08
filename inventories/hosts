@@ -1,0 +1,17 @@
+[vps]
+vps01 ansible_host=213.183.53.156 ansible_port=51799 sshd_port=51799 snmp_syslocation=sale-dedic.com
+
+[proxmox]
+pve01 ansible_host=172.19.9.201 snmp_syslocation=D21-206
+pve02 ansible_host=172.28.237.201 snmp_syslocation=D10-31
+
+[vms]
+s-1799-proxy ansible_host=172.19.9.254
+s-1799-glpi ansible_host=172.19.9.211
+s-1799-nms ansible_host=172.19.9.212
+
+[test]
+s-1799-test ansible_host=172.19.9.250
+
+[all:vars]
+ansible_user=root

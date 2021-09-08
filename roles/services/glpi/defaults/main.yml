@@ -1,0 +1,50 @@
+---
+app_path: /docker/glpi
+app_data_path: "{{ app_path }}/data/app"
+images_list:
+  - "alpine:3.13"
+  - "yobasystems/alpine-mariadb:10.5"
+
+glpi_version: 9.5.5
+glpi_url: https://github.com/glpi-project/glpi/releases/download/{{ glpi_version }}/glpi-{{ glpi_version }}.tgz
+glpi_plugins_path: "{{ app_data_path }}/glpi/plugins"
+glpi_plugins:
+  - {name: 'fusioninventory', url: 'https://github.com/fusioninventory/fusioninventory-for-glpi/releases/download/glpi9.5%2B3.0/fusioninventory-9.5+3.0.tar.bz2'}
+  - {name: 'addressing', url: 'https://github.com/pluginsGLPI/addressing/releases/download/2.9.0/glpi-addressing-2.9.0.tar.gz'}
+  - {name: 'mailanalyzer', url: 'https://github.com/tomolimo/mailanalyzer/releases/download/2.0.2/mailanalyzer-2.0.2.zip'}
+  - {name: 'accounts', url: 'https://github.com/InfotelGLPI/accounts/releases/download/2.6.0/glpi-accounts-2.6.0.tar.gz'}
+  - {name: 'datainjection', url: 'https://github.com/pluginsGLPI/datainjection/releases/download/2.9.0/glpi-datainjection-2.9.0.tar.bz2'}
+  - {name: 'moreticket', url: 'https://github.com/InfotelGLPI/moreticket/releases/download/1.6.1/glpi-moreticket-1.6.1.tar.gz'}
+  - {name: 'positions', url: 'https://github.com/InfotelGLPI/positions/releases/download/5.0.0/glpi-positions-5.0.0.tar.gz'}
+  - {name: 'reports', url: 'https://forge.glpi-project.org/attachments/download/2332/glpi-plugin-reports-1.14.1.tar.gz'}
+  - {name: 'dashboard', url: 'https://forge.glpi-project.org/attachments/download/2323/glpi-dashboard-1.0.2.zip'}
+  - {name: 'pdf', url: 'https://forge.glpi-project.org/attachments/download/2335/glpi-pdf-2.0.0.tar.gz'}
+  - {name: 'behaviors', url: 'https://forge.glpi-project.org/attachments/download/2336/glpi-behaviors-2.5.0.tar.gz'}
+  - {name: 'mreporting', url: 'https://github.com/pluginsGLPI/mreporting/releases/download/1.7.3/glpi-mreporting-1.7.3.tar.bz2'}
+  - {name: 'treeview', url: 'https://github.com/pluginsGLPI/treeview/releases/download/1.9.1/glpi-treeview-1.9.1.tar.bz2'}
+  - {name: 'shellcommands', url: 'https://github.com/InfotelGLPI/shellcommands/releases/download/3.0.0/glpi-shellcommands-3.0.0.tar.gz'}
+
+glpi_mysql_root_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          38656237373736666161626336623436646333363532613332623134653033656536316437623766
+          6237616262653462323937343762303262616534653264610a616239363265386635653037343239
+          35666432383666386637663534323566333961653465643265393962363830346534333833613836
+          3235643965643362380a646634666139336266376134333562396265396537333530333431356564
+          66356562646335616537373738316535363134633836366439393233353666376438
+glpi_mysql_user: glpi
+glpi_mysql_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          36656338636263623662613365363835663132383365623362353239313063346632636466353831
+          3830353662373636393438373638313639393632646566340a393530323430646332643730373632
+          36666165316339336437366434306639646237383432663665393032616266326139653433333865
+          3433613931393035390a353232643462366662353836636131326130333265396663626163313738
+          64656233316637633331646165313366616237323066626131393962666236373733
+
+glpi_vhost_servername: glpi.licey1799.ru
+glpi_vhost_serveralias: s-1799-glpi s-1799-glpi.cao.obr.mos.ru
+glpi_vhost_serveradmin: helpdesk@licey1799.ru
+glpi_vhost_externalips:
+  - 94.29.124.0/24
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16

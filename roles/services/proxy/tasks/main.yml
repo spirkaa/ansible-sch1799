@@ -1,0 +1,20 @@
+---
+- name: Configure static routes
+  interfaces_file:
+    iface: ens18
+    option: up
+    value: ip route add 10/8 via 172.19.8.1
+  notify: restart networking
+
+- name: wireguard tasks
+  include_tasks: wireguard.yml
+
+- name: Create a docker network
+  docker_network:
+    name: "{{ app_network_name }}"
+
+- name: portainer
+  include_tasks: portainer.yml
+
+- name: nginx-proxy-manager
+  include_tasks: nginx-proxy-manager.yml

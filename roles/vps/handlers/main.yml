@@ -1,0 +1,11 @@
+---
+- name: restart wireguard
+  service:
+    name: wg-quick@wg0
+    enabled: yes
+    state: restarted
+
+- name: restart iptables
+  service:
+    name: netfilter-persistent
+    state: restarted

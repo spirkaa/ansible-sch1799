@@ -1,0 +1,14 @@
+---
+- hosts: s-1799-test
+  gather_facts: yes
+
+  roles:
+    - { role: common/packages, tags: test }
+    - { role: common/zsh, tags: test }
+    - { role: common/mc, tags: test }
+    - { role: common/nano, tags: test }
+    - { role: common/motd, tags: test }
+    - { role: common/sshd, tags: test }
+    - { role: common/snmp, tags: test }
+    - { role: common/docker, tags: test }
+    - { role: common/domain-join, tags: test }

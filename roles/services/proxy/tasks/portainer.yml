@@ -1,0 +1,19 @@
+---
+- name: portainer - start
+  docker_container:
+    name: portainer
+    image: "{{ portainer_image }}"
+    pull: yes
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ app_path }}/portainer/data:/data"
+    networks:
+      - name: "{{ app_network_name }}"
+    networks_cli_compatible: yes
+    command: -H unix:///var/run/docker.sock
+    restart_policy: unless-stopped
+    state: started

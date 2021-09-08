@@ -1,0 +1,33 @@
+---
+- name: Install packages
+  package:
+    state: present
+    name:
+      - figlet
+
+- name: Delete /etc/motd
+  file:
+    path: /etc/motd
+    state: absent
+
+- name: Create update-motd.d dir
+  file:
+    path: /etc/update-motd.d
+    state: directory
+    recurse: yes
+
+- name: Copy files
+  copy:
+    src: "files/{{ item }}"
+    dest: "/etc/update-motd.d"
+    mode: 0755
+    directory_mode: 0755
+  loop:
+    - 00-header
+    - 90-footer
+
+- name: Copy 10-sysinfo
+  template:
+    src: templates/10-sysinfo.j2
+    dest: /etc/update-motd.d/10-sysinfo
+    mode: 0755

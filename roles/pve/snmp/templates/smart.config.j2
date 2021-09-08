@@ -1,0 +1,7 @@
+smartctl=/usr/sbin/smartctl
+cache=/var/cache/smart
+useSN=0
+{% if inventory_hostname == "pve01" or inventory_hostname == "pve02"%}
+sda
+sdb
+{% endif %}

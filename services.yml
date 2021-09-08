@@ -1,0 +1,17 @@
+---
+- hosts: s-1799-proxy
+  gather_facts: yes
+
+  roles:
+    - { role: common/wireguard, tags: proxy }
+    - { role: services/proxy, tags: proxy }
+
+- hosts: s-1799-glpi
+  gather_facts: yes
+
+  vars:
+    inventory_env: prod
+
+  roles:
+    - { role: common/domain_join, tags: glpi }
+    - { role: services/glpi, tags: glpi }

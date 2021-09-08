@@ -1,0 +1,7 @@
+warn_list:
+  - ignore-errors
+  - load-failure
+  - meta-no-info
+  - no-handler
+  - package-latest
+  - risky-shell-pipe

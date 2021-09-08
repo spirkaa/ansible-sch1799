@@ -1,0 +1,31 @@
+---
+- name: Configure APT sources
+  copy:
+    src: files/sources.list
+    dest: /etc/apt
+    mode: 0644
+
+- name: Configure APT sources
+  copy:
+    src: files/pve-no-subscription.list
+    dest: /etc/apt/sources.list.d
+    mode: 0644
+
+- name: Configure APT sources
+  file:
+    path: /etc/apt/sources.list.d/pve-enterprise.list
+    state: absent
+
+- name: Upgrade packages
+  package:
+    update_cache: yes
+    state: latest
+    name: '*'
+
+- name: Install packages
+  package:
+    state: present
+    name:
+      - openvswitch-switch
+      - patch
+      - pve-headers

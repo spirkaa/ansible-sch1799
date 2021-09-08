@@ -1,0 +1,112 @@
+---
+- name: Set FQDN hostname
+  hostname:
+    name: "{{ ansible_hostname }}.{{ domain_name }}"
+
+- name: Update hosts file
+  lineinfile:
+    path: /etc/hosts
+    state: present
+    regexp: "^127.0.1.1"
+    line: "127.0.1.1       {{ ansible_hostname }}.{{ domain_name }}      {{ ansible_hostname }}"
+
+- name: Install packages
+  package:
+    state: present
+    name:
+      - realmd
+      - sssd
+      - sssd-tools
+      - adcli
+      - krb5-user
+      - samba-common-bin
+      - oddjob
+      - oddjob-mkhomedir
+  when: ansible_os_family == "Debian"
+
+- name: Install pexpect
+  pip:
+    name: pexpect
+
+- name: Realm discover
+  command: /bin/bash -c "/usr/sbin/realm discover {{ domain_name }}"
+  register: realm_discover_results
+  changed_when: false
+
+# - name: Debug "Realm discover"
+#   debug:
+#     msg: "{{ realm_discover_results.stdout_lines }}"
+
+- name: Realm list
+  command: /bin/bash -c "/usr/sbin/realm list"
+  register: realm_list_results
+  changed_when: false
+
+# - name: Debug "Realm list"
+#   debug:
+#     msg: "{{ realm_list_results.stdout_lines }}"
+
+- name: Update realmd.conf
+  blockinfile:
+    create: yes
+    path: /etc/realmd.conf
+    block: |
+      [active-directory]
+      os-name = {{ ansible_distribution }}
+      os-version = {{ ansible_distribution_major_version }}
+    mode: 0644
+
+- block:
+    - name: Enter Active Directory admin username
+      pause:
+        prompt: "Enter Active Directory admin username"
+      register: prompt
+      failed_when: prompt.user_input | length == 0
+      changed_when: false
+
+    - name: Set fact "domain_admin_name"
+      set_fact:
+        domain_admin_name: "{{ prompt.user_input }}"
+
+    - name: Enter Active Directory admin password
+      pause:
+        prompt: "Enter Active Directory admin password"
+      register: prompt
+      failed_when: prompt.user_input | length == 0
+      changed_when: false
+      no_log: true
+
+    - name: Set fact "domain_admin_pass"
+      set_fact:
+        domain_admin_pass: "{{ prompt.user_input }}"
+      no_log: true
+
+    - name: Join domain
+      expect:
+        command: >
+          /bin/bash -c '/usr/sbin/realm join {{ domain_name }}
+          --user={{ domain_admin_name }}
+          --user-principal="host/{{ ansible_hostname }}.{{ domain_name }}@{{ domain_name | upper }}"
+          --computer-ou="{{ domain_computer_ou }}"
+          --install=/'
+        responses:
+          Password.*: "{{ domain_admin_pass }}"
+  when: realm_list_results.stdout | length == 0
+
+- name: Allow user login without FQDN
+  lineinfile:
+    backup: yes
+    state: present
+    dest: /etc/sssd/sssd.conf
+    regexp: '^{{ item.search }}'
+    line: '{{ item.replace }}'
+  with_items:
+    - { search: 'use_fully_qualified_names', replace: 'use_fully_qualified_names = False' }
+    - { search: 'fallback_homedir', replace: 'fallback_homedir = /home/%u' }
+  notify:
+    - restart sssd
+
+- name: Allow read access for krb5.keytab
+  file:
+    dest: /etc/krb5.keytab
+    mode: 0644

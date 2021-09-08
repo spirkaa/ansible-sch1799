@@ -1,0 +1,25 @@
+---
+- name: Upgrade packages
+  package:
+    update_cache: yes
+    state: latest
+    name: '*'
+
+- name: Install packages
+  package:
+    state: present
+    name:
+      - tmux
+      - rsync
+      - wget
+      - curl
+      - aria2
+      - git
+      - net-tools
+      - htop
+      - iftop
+      - iotop
+      - ncdu
+      - bzip2
+      - zip
+      - unzip

@@ -1,0 +1,5 @@
+---
+- import_playbook: vps.yml
+- import_playbook: pve.yml
+- import_playbook: vms.yml
+- import_playbook: services.yml
