@@ -2,27 +2,29 @@
 app_path: /docker/glpi
 app_data_path: "{{ app_path }}/data/app"
 images_list:
-  - "alpine:3.13"
-  - "yobasystems/alpine-mariadb:10.5"
+  - alpine:3.13
+  - yobasystems/alpine-mariadb:10.5
+  - juanluisbaptiste/postfix:latest
 
 glpi_version: 9.5.5
 glpi_url: https://github.com/glpi-project/glpi/releases/download/{{ glpi_version }}/glpi-{{ glpi_version }}.tgz
 glpi_plugins_path: "{{ app_data_path }}/glpi/plugins"
 glpi_plugins:
-  - {name: 'fusioninventory', url: 'https://github.com/fusioninventory/fusioninventory-for-glpi/releases/download/glpi9.5%2B3.0/fusioninventory-9.5+3.0.tar.bz2'}
-  - {name: 'addressing', url: 'https://github.com/pluginsGLPI/addressing/releases/download/2.9.0/glpi-addressing-2.9.0.tar.gz'}
-  - {name: 'mailanalyzer', url: 'https://github.com/tomolimo/mailanalyzer/releases/download/2.0.2/mailanalyzer-2.0.2.zip'}
-  - {name: 'accounts', url: 'https://github.com/InfotelGLPI/accounts/releases/download/2.6.0/glpi-accounts-2.6.0.tar.gz'}
-  - {name: 'datainjection', url: 'https://github.com/pluginsGLPI/datainjection/releases/download/2.9.0/glpi-datainjection-2.9.0.tar.bz2'}
-  - {name: 'moreticket', url: 'https://github.com/InfotelGLPI/moreticket/releases/download/1.6.1/glpi-moreticket-1.6.1.tar.gz'}
-  - {name: 'positions', url: 'https://github.com/InfotelGLPI/positions/releases/download/5.0.0/glpi-positions-5.0.0.tar.gz'}
-  - {name: 'reports', url: 'https://forge.glpi-project.org/attachments/download/2332/glpi-plugin-reports-1.14.1.tar.gz'}
-  - {name: 'dashboard', url: 'https://forge.glpi-project.org/attachments/download/2323/glpi-dashboard-1.0.2.zip'}
-  - {name: 'pdf', url: 'https://forge.glpi-project.org/attachments/download/2335/glpi-pdf-2.0.0.tar.gz'}
-  - {name: 'behaviors', url: 'https://forge.glpi-project.org/attachments/download/2336/glpi-behaviors-2.5.0.tar.gz'}
-  - {name: 'mreporting', url: 'https://github.com/pluginsGLPI/mreporting/releases/download/1.7.3/glpi-mreporting-1.7.3.tar.bz2'}
-  - {name: 'treeview', url: 'https://github.com/pluginsGLPI/treeview/releases/download/1.9.1/glpi-treeview-1.9.1.tar.bz2'}
-  - {name: 'shellcommands', url: 'https://github.com/InfotelGLPI/shellcommands/releases/download/3.0.0/glpi-shellcommands-3.0.0.tar.gz'}
+  - { name: 'fusioninventory', url: 'https://github.com/fusioninventory/fusioninventory-for-glpi/releases/download/glpi9.5%2B3.0/fusioninventory-9.5+3.0.tar.bz2' }
+  - { name: 'addressing', url: 'https://github.com/pluginsGLPI/addressing/releases/download/2.9.0/glpi-addressing-2.9.0.tar.gz' }
+  - { name: 'mailanalyzer', url: 'https://github.com/tomolimo/mailanalyzer/releases/download/2.0.2/mailanalyzer-2.0.2.zip' }
+  - { name: 'accounts', url: 'https://github.com/InfotelGLPI/accounts/releases/download/2.6.0/glpi-accounts-2.6.0.tar.gz' }
+  - { name: 'datainjection', url: 'https://github.com/pluginsGLPI/datainjection/releases/download/2.9.0/glpi-datainjection-2.9.0.tar.bz2' }
+  - { name: 'moreticket', url: 'https://github.com/InfotelGLPI/moreticket/releases/download/1.6.1/glpi-moreticket-1.6.1.tar.gz' }
+  - { name: 'positions', url: 'https://github.com/InfotelGLPI/positions/releases/download/5.0.0/glpi-positions-5.0.0.tar.gz' }
+  - { name: 'reports', url: 'https://forge.glpi-project.org/attachments/download/2332/glpi-plugin-reports-1.14.1.tar.gz' }
+  - { name: 'dashboard', url: 'https://forge.glpi-project.org/attachments/download/2323/glpi-dashboard-1.0.2.zip' }
+  - { name: 'pdf', url: 'https://forge.glpi-project.org/attachments/download/2335/glpi-pdf-2.0.0.tar.gz' }
+  - { name: 'behaviors', url: 'https://forge.glpi-project.org/attachments/download/2336/glpi-behaviors-2.5.0.tar.gz' }
+  - { name: 'mreporting', url: 'https://github.com/pluginsGLPI/mreporting/releases/download/1.7.3/glpi-mreporting-1.7.3.tar.bz2' }
+  - { name: 'treeview', url: 'https://github.com/pluginsGLPI/treeview/releases/download/1.9.1/glpi-treeview-1.9.1.tar.bz2' }
+  - { name: 'shellcommands', url: 'https://github.com/InfotelGLPI/shellcommands/releases/download/3.0.0/glpi-shellcommands-3.0.0.tar.gz' }
+  - { name: 'oauthimap', url: 'https://github.com/pluginsGLPI/oauthimap/releases/download/1.2.0/glpi-oauthimap-1.2.0.tar.bz2' }
 
 glpi_mysql_root_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -48,3 +50,16 @@ glpi_vhost_externalips:
   - 10.0.0.0/8
   - 172.16.0.0/12
   - 192.168.0.0/16
+
+glpi_postfix_smtp_server: smtp.office365.com
+glpi_postfix_smtp_port: 587
+glpi_postfix_smtp_username: support@licey1799.ru
+glpi_postfix_smtp_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          35326136303164376463343265393039643132353266346437643064633430383234633839316433
+          6230633938636562313365303633346566313131656236370a623435396239633539323161343632
+          61623161333837326264633938383162313662313736376435353663353039316637336331646537
+          6237316164393466640a356333373739376230613663303864376565313162356434353663353033
+          39376533663264666438313133383033633963383635336130313332623935633662
+glpi_postfix_smtp_hostname: "{{ glpi_vhost_servername }}"
+glpi_postfix_overwrite_from: Техподдержка Школы 1799 <{{ glpi_postfix_smtp_username }}>

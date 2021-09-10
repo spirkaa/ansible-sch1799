@@ -1,6 +1,13 @@
 version: '2'
 
 services:
+  postfix:
+    image: juanluisbaptiste/postfix:latest
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    env_file: .env
+    restart: unless-stopped
+
   mariadb:
     build: ./compose/mariadb
     volumes:
@@ -13,6 +20,7 @@ services:
     volumes:
       - ./data/app:/app
     depends_on:
+      - postfix
       - mariadb
     restart: unless-stopped
 
