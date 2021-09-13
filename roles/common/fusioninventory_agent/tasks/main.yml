@@ -1,0 +1,16 @@
+---
+- name: Install packages
+  package:
+    state: present
+    name:
+      - fusioninventory-agent
+      - fusioninventory-agent-task-collect
+      - fusioninventory-agent-task-deploy
+      - fusioninventory-agent-task-network
+
+- name: Configure GLPI server url
+  lineinfile:
+    path: /etc/fusioninventory/agent.cfg
+    line: server = {{ glpi_server_url }}
+    state: present
+  notify: restart fusioninventory-agent
