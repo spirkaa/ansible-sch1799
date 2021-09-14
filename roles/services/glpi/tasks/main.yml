@@ -36,7 +36,6 @@
   retries: 3
   delay: 10
   until: pull_images is not failed
-  tags: upgrade
 
 - name: Build and restart app containers
   docker_compose:
@@ -45,7 +44,6 @@
     state: present
   register: build_containers
   when: copy_app_files.changed or copy_templates.changed or pull_images.changed
-  tags: upgrade
 
 - name: Install GLPI
   include_tasks:

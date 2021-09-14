@@ -117,6 +117,7 @@
       file:
         path: "{{ app_data_path }}/glpi/install/install.php"
         state: absent
+      notify: restart containers
 
     - name: Delete old version marker
       shell: "rm -vrf {{ app_data_path }}/glpi_*_installed"
