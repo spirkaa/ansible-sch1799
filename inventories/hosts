@@ -3,15 +3,22 @@ vps01 ansible_host=213.183.53.156 ansible_port=51799 sshd_port=51799 snmp_sysloc
 
 [proxmox]
 s-1799-2-pve ansible_host=172.28.237.252 snmp_syslocation=D10-31
-s-1799-3-pve ansible_host=172.19.5.252 snmp_syslocation=B03-400
+s-1799-3-pve ansible_host=172.18.249.252 snmp_syslocation=O15-415
 s-1799-4-pve ansible_host=172.19.1.252 snmp_syslocation=K03-413
-s-1799-5-pve ansible_host=172.18.249.252 snmp_syslocation=O15-415
+s-1799-5-pve ansible_host=172.19.5.252 snmp_syslocation=B03-400
 s-1799-6-pve ansible_host=172.19.9.252 snmp_syslocation=D21-206
 
 [vms]
 s-1799-proxy ansible_host=172.19.9.254
 s-1799-glpi ansible_host=172.19.9.211
 s-1799-nms ansible_host=172.19.9.212
+
+[mdt]
+S-1799-2-MDT ansible_host=172.28.237.253
+S-1799-3-MDT ansible_host=172.18.249.253
+S-1799-4-MDT ansible_host=172.19.1.253
+S-1799-5-MDT ansible_host=172.19.5.253
+S-1799-6-MDT ansible_host=172.19.9.253
 
 [test]
 s-1799-test ansible_host=172.19.9.250

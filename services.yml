@@ -15,3 +15,9 @@
   roles:
     - { role: common/domain_join, tags: glpi }
     - { role: services/glpi, tags: glpi }
+
+- hosts: mdt
+  gather_facts: yes
+
+  roles:
+    - { role: services/mdt, tags: mdt }

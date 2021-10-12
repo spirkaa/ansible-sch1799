@@ -1,9 +1,0 @@
-[docker_hosts]
-rp ansible_host=192.168.13.111
-nms ansible_host=192.168.13.102
-glpi ansible_host=192.168.30.114
-dist ansible_host=192.168.13.110
-
-[docker_hosts:vars]
-ansible_user=root
-inventory_env=test

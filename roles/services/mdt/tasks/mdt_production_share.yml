@@ -1,0 +1,22 @@
+---
+- name: MDTProduction - Create folder
+  win_file:
+    path: "{{ mdt_production_path }}"
+    state: directory
+
+- name: MDTProduction - Add rights
+  win_acl:
+    path: "{{ mdt_production_path }}"
+    user: "{{ mdt_user }}"
+    rights: Modify
+    type: allow
+    state: present
+    inherit: ContainerInherit, ObjectInherit
+    propagation: 'None'
+
+- name: MDTProduction - Share folder
+  win_share:
+    name: MDTProduction$
+    description: Microsoft Deployment Toolkit Production Share
+    path: "{{ mdt_production_path }}"
+    full: Everyone

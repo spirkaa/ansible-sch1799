@@ -1,0 +1,46 @@
+---
+- name: Enter Active Directory admin
+  pause:
+    prompt: "Enter Active Directory admin (DOMAIN\\username)"
+  register: domain_admin_name_prompt
+  failed_when: domain_admin_name_prompt.user_input | length == 0
+  changed_when: false
+
+- name: Set fact "domain_admin_name"
+  set_fact:
+    domain_admin_name: "{{ domain_admin_name_prompt.user_input }}"
+  with_items: "{{ ansible_play_hosts }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Enter Active Directory admin password
+  pause:
+    prompt: "Enter Active Directory admin password"
+    echo: no
+  register: domain_admin_pass_prompt
+  failed_when: domain_admin_pass_prompt.user_input | length == 0
+  changed_when: false
+  no_log: true
+
+- name: Set fact "domain_admin_pass"
+  set_fact:
+    domain_admin_pass: "{{ domain_admin_pass_prompt.user_input }}"
+  no_log: true
+  with_items: "{{ ansible_play_hosts }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Rename host and join domain
+  win_domain_membership:
+    dns_domain_name: "{{ domain_name }}"
+    hostname: "{{ inventory_hostname }}"
+    domain_admin_user: "{{ domain_admin_name }}"
+    domain_admin_password: "{{ domain_admin_pass }}"
+    domain_ou_path: "{{ domain_computer_ou }}"
+    state: domain
+  no_log: true
+  register: domain_state
+
+- name: Reboot host if required
+  win_reboot:
+  when: domain_state.reboot_required

@@ -1,0 +1,204 @@
+---
+# - name: Copy installers from remote share
+#   win_copy:
+#     src: "{{ mdt_setup_src }}\\{{ item }}"
+#     dest: "{{ mdt_setup }}\\"
+#     remote_src: yes
+#   become: yes
+#   become_method: runas
+#   become_flags: logon_type=new_credentials logon_flags=netcredentials_only
+#   vars:
+#     ansible_become_user: "{{ mdt_user }}"
+#     ansible_become_password: "{{ mdt_pass }}"
+#   loop: "{{ mdt_setup_files }}"
+
+- name: ADK - Check if already installed
+  win_reg_stat:
+    path: HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{7e346013-f80f-4c16-9222-a8c5e0f9d243}
+  register: adk_state
+
+- block:
+    - name: ADK - Ensure an ISO is mounted
+      win_disk_image:
+        image_path: "{{ mdt_setup }}\\20348.1.210507-1500.fe_release_amd64fre_ADK.iso"
+        state: present
+      register: disk_image_out
+
+    - name: ADK - Run installer from mounted ISO
+      win_package:
+        path: "{{ disk_image_out.mount_paths[0] }}adksetup.exe"
+        arguments: "/quiet"
+        product_id: "{7e346013-f80f-4c16-9222-a8c5e0f9d243}"
+        state: present
+
+    - name: ADK - Unmount ISO
+      win_disk_image:
+        image_path: "{{ mdt_setup }}\\20348.1.210507-1500.fe_release_amd64fre_ADK.iso"
+        state: absent
+  when: not adk_state.exists
+
+- name: ADK WinPE - Check if already installed
+  win_reg_stat:
+    path: HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{5bed27d0-3234-4304-95f3-c80b9509ad18}
+  register: adkwinpe_state
+
+- block:
+    - name: ADK WinPE - Ensure an ISO is mounted
+      win_disk_image:
+        image_path: "{{ mdt_setup }}\\20348.1.210507-1500.fe_release_amd64fre_ADKWINPEADDONS.iso"
+        state: present
+      register: disk_image_out
+
+    - name: ADK WinPE - Run installer from mounted ISO
+      win_package:
+        path: "{{ disk_image_out.mount_paths[0] }}adkwinpesetup.exe"
+        arguments: "/quiet"
+        product_id: "{5bed27d0-3234-4304-95f3-c80b9509ad18}"
+        state: present
+
+    - name: ADK WinPE - Unmount ISO
+      win_disk_image:
+        image_path: "{{ mdt_setup }}\\20348.1.210507-1500.fe_release_amd64fre_ADKWINPEADDONS.iso"
+        state: absent
+  when: not adkwinpe_state.exists
+
+- name: MDT - Install
+  win_package:
+    path: "{{ mdt_setup }}\\MicrosoftDeploymentToolkit_x64.msi"
+    product_id: "{2E6CD7B9-9D00-4B04-882F-E6971BC9A763}"
+    state: present
+
+- name: MDT - Apply KB4564442 patch
+  win_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "{{ mdt_patch_src }}\\x64\\microsoft.bdd.utility.dll", dest: "{{ mdt_patch_dest }}\\x64\\" }
+    - { src: "{{ mdt_patch_src }}\\x86\\microsoft.bdd.utility.dll", dest: "{{ mdt_patch_dest }}\\x86\\" }
+
+- name: MDT - Check if Monitor Service exists
+  win_service:
+    name: MDT_Monitor
+  register: mdtmonitorservice_state
+
+- name: MDT - Enable Monitor Service
+  win_shell: |
+    Add-PSSnapIn Microsoft.BDD.PSSnapIn -ErrorAction SilentlyContinue
+    Enable-MDTMonitorService -EventPort 9800 -DataPort 9801
+  when: not mdtmonitorservice_state.exists
+
+- name: Logs - Create folder
+  win_file:
+    path: "{{ mdt_logs_path }}"
+    state: directory
+
+- name: Logs - Add rights
+  win_acl:
+    path: "{{ mdt_logs_path }}"
+    user: "{{ mdt_user }}"
+    rights: Modify
+    type: allow
+    state: present
+    inherit: ContainerInherit, ObjectInherit
+    propagation: 'None'
+
+- name: Logs - Share folder
+  win_share:
+    name: Logs$
+    description: Microsoft Deployment Toolkit Logs
+    path: "{{ mdt_logs_path }}"
+    full: Everyone
+
+- name: MDTBuildLab - Create folder
+  win_file:
+    path: "{{ mdt_buildlab_path }}"
+    state: directory
+
+- name: MDTBuildLab - Add rights
+  win_acl:
+    path: "{{ mdt_buildlab_path }}"
+    user: "{{ mdt_user }}"
+    rights: Modify
+    type: allow
+    state: present
+    inherit: ContainerInherit, ObjectInherit
+    propagation: 'None'
+
+- name: MDTBuildLab - Share folder
+  win_share:
+    name: MDTBuildLab$
+    description: Microsoft Deployment Toolkit Build Share
+    path: "{{ mdt_buildlab_path }}"
+    full: Everyone
+
+- name: MDTBuildLab - Check if Deployment Share exists
+  win_shell: |
+    Add-PSSnapIn Microsoft.BDD.PSSnapIn -ErrorAction SilentlyContinue
+    Get-MDTPersistentDrive
+  register: mdtbuildlab_state
+  changed_when: false
+
+- name: MDTBuildLab - Create Deployment Share
+  win_shell: |
+    Add-PSSnapIn Microsoft.BDD.PSSnapIn -ErrorAction SilentlyContinue
+    New-PSDrive -Name "DS001" -PSProvider "MDTProvider" -Root "{{ mdt_buildlab_path }}" -Description "MDT Build Lab" -NetworkPath \\{{ inventory_hostname }}\MDTBuildLab$ | Add-MDTPersistentDrive
+  when: mdt_buildlab_path not in mdtbuildlab_state.stdout
+
+- name: MDTBuildLab - Add DaRT
+  win_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "{{ mdt_dart_src }}\\toolsx64.cab", dest: "{{ mdt_buildlab_path }}\\Tools\\x64\\" }
+    - { src: "{{ mdt_dart_src }}\\toolsx86.cab", dest: "{{ mdt_buildlab_path }}\\Tools\\x86\\" }
+
+- name: MDTProduction Share - Common tasks
+  include_tasks: mdt_production_share.yml
+
+- name: MDTProduction - Check if Deployment Share exists
+  win_shell: |
+    Add-PSSnapIn Microsoft.BDD.PSSnapIn -ErrorAction SilentlyContinue
+    Get-MDTPersistentDrive
+  register: mdtproduction_state
+  changed_when: false
+
+- name: MDTProduction - Create Deployment Share
+  win_shell: |
+    Add-PSSnapIn Microsoft.BDD.PSSnapIn -ErrorAction SilentlyContinue
+    New-PSDrive -Name "DS002" -PSProvider "MDTProvider" -Root "{{ mdt_production_path }}" -Description "MDT Production" -NetworkPath \\{{ inventory_hostname }}\MDTProduction$ | Add-MDTPersistentDrive
+  when: mdt_production_path not in mdtproduction_state.stdout
+
+- name: MDTProduction - Add DaRT
+  win_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  loop:
+    - { src: "{{ mdt_dart_src }}\\toolsx64.cab", dest: "{{ mdt_production_path }}\\Tools\\x64\\" }
+    - { src: "{{ mdt_dart_src }}\\toolsx86.cab", dest: "{{ mdt_production_path }}\\Tools\\x86\\" }
+
+- name: MDTProduction - Create a scheduled task to syncronize share between hosts
+  win_scheduled_task:
+    name: MDTProduction_sync_{{ item }}
+    description: Sync MDTProduction share with {{ item }} host
+    actions:
+      - path: robocopy.exe
+        arguments: \\{{ inventory_hostname }}\MDTProduction$ \\{{ item }}\MDTProduction$ /mir /zb /mt:16 /tbd /r:5 /w:3 /fft /log:{{ mdt_logs_path }}\robocopy_{{ item }}_MDTProduction.log
+    triggers:
+      - type: daily
+        start_boundary: '2021-01-01T00:00:00'
+        repetition:
+          interval: PT15M
+        random_delay: PT15M
+    execution_time_limit: PT2H
+    logon_type: password
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    update_password: no
+    run_level: highest
+    enabled: yes
+    state: present
+  no_log: true
+  loop: "{{ groups['mdt'] | reject('search', inventory_hostname) | list }}"

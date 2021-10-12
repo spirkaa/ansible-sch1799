@@ -1,0 +1,11 @@
+---
+- name: MDT - Common tasks
+  include_tasks: common.yml
+
+- name: MDT - Distribution Hosts tasks
+  include_tasks: mdt_distribution_hosts.yml
+  when: inventory_hostname != "S-1799-6-MDT"
+
+- name: MDT - Main Host tasks
+  include_tasks: mdt_main_host.yml
+  when: inventory_hostname == "S-1799-6-MDT"

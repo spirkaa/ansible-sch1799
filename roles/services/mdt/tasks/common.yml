@@ -1,0 +1,63 @@
+---
+- name: Domain Join Tasks
+  include_tasks: common_domain_join.yml
+  when: >
+    not ansible_windows_domain_member or
+    ansible_hostname != inventory_hostname
+
+- name: Disks - Get state
+  win_disk_facts:
+
+- block:
+    - name: Disks - Create partition
+      win_partition:
+        drive_letter: "{{ mdt_disk }}"
+        disk_number: 0
+        partition_size: "-1"
+
+    - name: Disks - Format partition
+      win_format:
+        drive_letter: "{{ mdt_disk }}"
+        file_system: ntfs
+        new_label: "{{ mdt_disk_label }}"
+  when: ansible_facts.disks[0].partitions[-1].volumes[0].label != mdt_disk_label
+
+- name: Desktop Apps - Install
+  win_chocolatey:
+    state: latest
+    name:
+      - 7zip
+      - open-shell
+      - notepadplusplus
+
+- name: Server Roles - Install
+  win_feature:
+    state: present
+    include_sub_features: true
+    include_management_tools: true
+    name:
+      - WDS
+      - FS-Data-Deduplication
+  register: services_state
+
+- name: Reboot host if required
+  win_reboot:
+  when: services_state.reboot_required
+
+- name: WDS - Initialize
+  win_shell: |
+    wdsutil /Initialize-Server /RemInst:"{{ mdt_disk }}:\RemoteInstall" /standalone | select -last 1
+    wdsutil /Set-Server /AnswerClients:All
+  args:
+    creates: "{{ mdt_disk }}:\\RemoteInstall"
+
+- name: Data Deduplication - Get state
+  win_shell: Get-DedupVolume -Volume "{{ mdt_disk }}:"
+  register: dedup_state
+  ignore_errors: yes
+  changed_when: false
+
+- name: Data Deduplication - Enable
+  win_shell: Enable-DedupVolume -Volume "{{ mdt_disk }}:" -UsageType Default
+  register: result
+  changed_when: dedup_state.stdout != result.stdout

@@ -1,0 +1,3 @@
+---
+- name: MDTProduction Share - Common tasks
+  include_tasks: mdt_production_share.yml

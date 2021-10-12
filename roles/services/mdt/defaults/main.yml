@@ -1,0 +1,31 @@
+---
+domain_name: cao.obr.mos.ru
+domain_computer_ou: OU=Servers,OU=Computers,OU=SCH-1799,OU=Schools,DC=cao,DC=obr,DC=mos,DC=ru
+
+mdt_user: CAO\U-1799-1-002
+mdt_pass: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62643933663934663535396164363366393334363330633861386436636236613061363766383438
+          3530656239383533363161383963376235316431626131370a613631636437653131386230316535
+          31613633303064326564643535666533393131316565653036636436636332383562323333356461
+          3264633762373462650a333438636635333233336664333533653133356563633231313035303630
+          3639
+
+mdt_disk: D
+mdt_disk_label: DATA
+
+mdt_setup_src: \\{{ domain_name }}\SCH-1799\Share\IT\server\MDT
+mdt_setup_files:
+  - 20348.1.210507-1500.fe_release_amd64fre_ADK.iso
+  - 20348.1.210507-1500.fe_release_amd64fre_ADKWINPEADDONS.iso
+  - MicrosoftDeploymentToolkit_x64.msi
+  - MDT_KB4564442
+  - DaRT
+mdt_setup: "{{ mdt_disk }}:\\MDT_Setup"
+mdt_patch_src: "{{ mdt_setup }}\\MDT_KB4564442"
+mdt_patch_dest: "C:\\Program Files\\Microsoft Deployment Toolkit\\Templates\\Distribution\\Tools"
+mdt_dart_src: "{{ mdt_setup }}\\DaRT"
+
+mdt_logs_path: "{{ mdt_disk }}:\\Logs"
+mdt_buildlab_path: "{{ mdt_disk }}:\\MDTBuildLab"
+mdt_production_path: "{{ mdt_disk }}:\\MDTProduction"
