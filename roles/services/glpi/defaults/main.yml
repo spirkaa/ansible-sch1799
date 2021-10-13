@@ -6,7 +6,7 @@ images_list:
   - yobasystems/alpine-mariadb:10.5
   - juanluisbaptiste/postfix:latest
 
-glpi_version: 9.5.5
+glpi_version: 9.5.6
 glpi_url: https://github.com/glpi-project/glpi/releases/download/{{ glpi_version }}/glpi-{{ glpi_version }}.tgz
 glpi_plugins_path: "{{ app_data_path }}/glpi/plugins"
 glpi_plugins:
