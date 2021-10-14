@@ -93,15 +93,26 @@
     path: "{{ mdt_logs_path }}"
     state: directory
 
-- name: Logs - Add rights
+- name: Logs - Disable inherited ACE's
+  win_acl_inheritance:
+    path: "{{ mdt_logs_path }}"
+    state: absent
+
+- name: Logs - Add Modify rights for {{ mdt_user }}
   win_acl:
     path: "{{ mdt_logs_path }}"
     user: "{{ mdt_user }}"
     rights: Modify
     type: allow
     state: present
-    inherit: ContainerInherit, ObjectInherit
-    propagation: 'None'
+
+- name: Logs - Add FullControl rights for BUILTIN\Administrators
+  win_acl:
+    path: "{{ mdt_logs_path }}"
+    user: BUILTIN\Administrators
+    rights: FullControl
+    type: allow
+    state: present
 
 - name: Logs - Share folder
   win_share:
@@ -115,15 +126,26 @@
     path: "{{ mdt_buildlab_path }}"
     state: directory
 
-- name: MDTBuildLab - Add rights
+- name: MDTBuildLab - Disable inherited ACE's
+  win_acl_inheritance:
+    path: "{{ mdt_buildlab_path }}"
+    state: absent
+
+- name: MDTBuildLab - Add Modify rights for {{ mdt_user }}
   win_acl:
     path: "{{ mdt_buildlab_path }}"
     user: "{{ mdt_user }}"
     rights: Modify
     type: allow
     state: present
-    inherit: ContainerInherit, ObjectInherit
-    propagation: 'None'
+
+- name: MDTBuildLab - Add FullControl rights for BUILTIN\Administrators
+  win_acl:
+    path: "{{ mdt_buildlab_path }}"
+    user: BUILTIN\Administrators
+    rights: FullControl
+    type: allow
+    state: present
 
 - name: MDTBuildLab - Share folder
   win_share:

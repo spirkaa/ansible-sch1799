@@ -4,15 +4,26 @@
     path: "{{ mdt_production_path }}"
     state: directory
 
-- name: MDTProduction - Add rights
+- name: MDTProduction - Disable inherited ACE's
+  win_acl_inheritance:
+    path: "{{ mdt_production_path }}"
+    state: absent
+
+- name: MDTProduction - Add Modify rights for {{ mdt_user }}
   win_acl:
     path: "{{ mdt_production_path }}"
     user: "{{ mdt_user }}"
     rights: Modify
     type: allow
     state: present
-    inherit: ContainerInherit, ObjectInherit
-    propagation: 'None'
+
+- name: MDTProduction - Add FullControl rights for BUILTIN\Administrators
+  win_acl:
+    path: "{{ mdt_production_path }}"
+    user: BUILTIN\Administrators
+    rights: FullControl
+    type: allow
+    state: present
 
 - name: MDTProduction - Share folder
   win_share:
