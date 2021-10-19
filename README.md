@@ -1,19 +1,22 @@
 # Ansible-sch1799
 
-Коллекция ролей и плейбуков [Ansible](https://www.ansible.com/), управляющая конфигурацией серверов Школы № 1799.
+Коллекция ролей и плейбуков [Ansible](https://www.ansible.com/),
+управляющая конфигурацией серверов и приложений Школы № 1799.
 
 ## Серверы
 
 * VPS в интернете
 * Proxmox в зданиях школ
 * Виртуальные машины на Proxmox
+* Виртуальные машины МЭШ
 
 ## Приложения
 
 * WireGuard VPN
 * Nginx Proxy Manager
 * GLPI
-* NMS (LibreNMS, Oxidized, SmokePing)
+* NMS (LibreNMS, SmokePing)
+* Microsoft Deployment Toolkit
 
 ## Зачем это нужно
 
