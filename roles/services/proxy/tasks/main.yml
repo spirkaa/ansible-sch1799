@@ -12,6 +12,8 @@
 - name: Create a docker network
   docker_network:
     name: "{{ app_network_name }}"
+    ipam_config:
+      - subnet: 172.31.254.0/24
 
 - name: portainer
   include_tasks: portainer.yml
