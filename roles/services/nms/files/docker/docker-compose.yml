@@ -1,0 +1,59 @@
+version: '2'
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.31.254.0/24
+
+services:
+  smokeping:
+    image: linuxserver/smokeping:latest
+    container_name: smokeping
+    ports:
+      - "8081:80"
+    environment:
+      - PUID=999
+      - PGID=999
+      - TZ=Europe/Moscow
+    volumes:
+      - "./smokeping/config:/config"
+      - "./smokeping/data:/data"
+    restart: unless-stopped
+
+  librenms-db:
+    build: ./compose/mariadb
+    container_name: librenms-db
+    command: --sql-mode="" --lower_case_table_names=0
+    volumes:
+      - "./mysql:/var/lib/mysql"
+    env_file: .env
+    restart: unless-stopped
+
+  librenms:
+    build: ./compose/librenms
+    container_name: librenms
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./librenms/logs/nginx:/var/log/nginx"
+      - "./librenms/logs/app:/opt/librenms/logs"
+      - "./librenms/rrd:/opt/librenms/rrd"
+      - "./librenms/config.custom.php:/opt/librenms/conf.d/config.custom.php"
+      - "./librenms/Weathermap/configs:/opt/librenms/html/plugins/Weathermap/configs"
+      - "./librenms/Weathermap/output:/opt/librenms/html/plugins/Weathermap/output"
+      - "./smokeping:/opt/smokeping"
+    environment:
+      - TZ=Europe/Moscow
+      - POLLERS=16
+      - DISCOVERY_THREADS=16
+      - DISABLE_IPV6=true
+      - BILLING_CALCULATE_ENABLE=false
+      - POLL_BILLING_ENABLE=false
+      - WEATHERMAP_ENABLE=true
+    env_file: .env
+    depends_on:
+      - librenms-db
+    restart: unless-stopped

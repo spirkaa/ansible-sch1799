@@ -1,0 +1,47 @@
+<?php
+// config['auth_mechanism'] = "mysql";
+
+$config['auth_mechanism'] = "active_directory";
+$config['auth_ad_check_certificates'] = false;
+$config['auth_ad_url'] = "ldap://{{ nms_ad_domain }}";
+$config['auth_ad_domain'] = "{{ nms_ad_domain }}";
+$config['auth_ad_base_dn'] = "{{ nms_ad_base_dn }}";
+$config['auth_ad_binduser'] = "{{ nms_ad_binduser }}";
+$config['auth_ad_bindpassword'] = "{{ nms_ad_bindpassword }}";
+$config['auth_ad_timeout'] = 5;
+$config['auth_ad_debug'] = false;
+$config['active_directory']['users_purge'] = 365;
+$config['auth_ad_require_groupmembership'] = true;
+$config['auth_ad_groups']['{{ nms_ad_groups_admins }}']['level'] = 10;
+$config['auth_ad_groups']['{{ nms_ad_groups_admins_ro }}']['level'] = 5;
+$config['auth_ad_groups']['{{ nms_ad_groups_users }}']['level'] = 1;
+
+$config['enable_proxmox'] = 1;
+
+$config['fping_options']['count'] = 4;
+$config['fping_options']['interval'] = 1000;
+$config['fping_options']['timeout'] = 1000;
+
+{% for community in nms_snmp_community %}
+$config['snmp']['community'][] = "{{ community }}";
+{% endfor %}
+
+{% for net in nms_networks %}
+$config['nets'][] = "{{ net.cidr }}";  # {{ net.comment }}
+{% endfor %}
+
+$config['discovery_by_ip'] = true;
+$config['allow_duplicate_sysName'] = false;
+// $config['force_ip_to_sysname'] = true;
+
+$config['int_customers'] = 0; # Hide Customer Port Parsing
+$config['int_transit'] = 0; # Hide Transit Types
+$config['int_peering'] = 0; # Hide Peering Types
+$config['int_core'] = 0; # Hide Core Port Types
+$config['int_l2tp'] = 0; # Hide L2TP Port Types
+
+$config['smokeping']['dir'] = "/opt/smokeping/data";
+$config['smokeping']['pings'] = 20;
+$config['smokeping']['probes'] = 2;
+$config['smokeping']['integration'] = true;
+$config['smokeping']['url'] = "http://{{ ansible_host }}:8081";

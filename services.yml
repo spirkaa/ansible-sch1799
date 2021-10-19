@@ -16,6 +16,12 @@
     - { role: common/domain_join, tags: glpi }
     - { role: services/glpi, tags: glpi }
 
+- hosts: s-1799-nms
+  gather_facts: yes
+
+  roles:
+    - { role: services/nms, tags: nms }
+
 - hosts: mdt
   gather_facts: yes
 

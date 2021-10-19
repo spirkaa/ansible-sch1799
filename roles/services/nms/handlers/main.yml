@@ -1,0 +1,19 @@
+---
+- name: restart containers
+  docker_compose:
+    project_src: "{{ app_path }}"
+    build: no
+    restarted: yes
+    state: present
+  when: not build_containers.changed
+
+- name: librenms setup_database
+  command: docker exec librenms setup_database
+  register: result
+  retries: 3
+  delay: 10
+  until: result is not failed
+  changed_when: '"Nothing to migrate" not in result.stdout'
+  failed_when: >
+    ("Permission denied" in result.stdout) or
+    ("Could not connect to database" in result.stdout)
