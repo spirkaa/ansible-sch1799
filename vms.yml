@@ -2,9 +2,6 @@
 - hosts: vms
   gather_facts: yes
 
-  vars:
-    snmp_syslocation: pve01
-
   roles:
     - { role: common/packages, tags: [vms, packages] }
     - { role: common/zsh, tags: [vms, zsh] }

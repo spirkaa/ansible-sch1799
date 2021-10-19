@@ -9,9 +9,9 @@ s-1799-5-pve ansible_host=172.19.5.252 snmp_syslocation=B03-400
 s-1799-6-pve ansible_host=172.19.9.252 snmp_syslocation=D21-206
 
 [vms]
-s-1799-proxy ansible_host=172.19.9.254
-s-1799-glpi ansible_host=172.19.9.211
-s-1799-nms ansible_host=172.19.9.212
+s-1799-proxy ansible_host=172.19.9.254 snmp_syslocation=s-1799-6-pve
+s-1799-glpi ansible_host=172.19.9.211 snmp_syslocation=s-1799-6-pve
+s-1799-nms ansible_host=172.19.9.212 snmp_syslocation=s-1799-6-pve
 
 [mdt]
 S-1799-2-MDT ansible_host=172.28.237.253
