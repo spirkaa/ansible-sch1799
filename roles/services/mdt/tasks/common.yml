@@ -38,6 +38,7 @@
     name:
       - WDS
       - FS-Data-Deduplication
+      - SNMP-Service
   register: services_state
 
 - name: Reboot host if required
@@ -61,3 +62,11 @@
   win_shell: Enable-DedupVolume -Volume "{{ mdt_disk }}:" -UsageType Default
   register: result
   changed_when: dedup_state.stdout != result.stdout
+
+- name: SNMP - Configure
+  win_snmp:
+    community_strings:
+      - "{{ mdt_snmp_community }}"
+    permitted_managers:
+      - "{{ mdt_snmp_permitted_managers }}"
+  no_log: true
