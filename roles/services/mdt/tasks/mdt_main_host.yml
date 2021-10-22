@@ -88,6 +88,12 @@
     Enable-MDTMonitorService -EventPort 9800 -DataPort 9801
   when: not mdtmonitorservice_state.exists
 
+- name: DaRT - Install
+  win_package:
+    path: "{{ mdt_dart_src }}\\MSDaRT100.msi"
+    product_id: "{60B7DCA9-BCE9-4FBD-A550-3CC8E0F3A933}"
+    state: present
+
 - name: Logs - Create folder
   win_file:
     path: "{{ mdt_logs_path }}"
