@@ -70,3 +70,11 @@
     permitted_managers:
       - "{{ mdt_snmp_permitted_managers }}"
   no_log: true
+
+- name: Users - Disable "school-support" local users
+  win_user:
+    name: "{{ item }}"
+    account_disabled: yes
+  loop:
+    - support
+    - support-1
