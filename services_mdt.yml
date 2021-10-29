@@ -1,0 +1,6 @@
+---
+- hosts: mdt
+  gather_facts: yes
+
+  roles:
+    - { role: services/mdt, tags: mdt }

@@ -1,0 +1,6 @@
+---
+- hosts: s-1799-nms
+  gather_facts: yes
+
+  roles:
+    - { role: services/nms, tags: nms }

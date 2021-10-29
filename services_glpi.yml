@@ -1,0 +1,10 @@
+---
+- hosts: s-1799-glpi
+  gather_facts: yes
+
+  vars:
+    inventory_env: prod
+
+  roles:
+    - { role: common/domain_join, tags: glpi }
+    - { role: services/glpi, tags: glpi }

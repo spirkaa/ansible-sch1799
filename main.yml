@@ -2,4 +2,7 @@
 - import_playbook: vps.yml
 - import_playbook: pve.yml
 - import_playbook: vms.yml
-- import_playbook: services.yml
+- import_playbook: services_proxy.yml
+- import_playbook: services_nms.yml
+- import_playbook: services_glpi.yml
+- import_playbook: services_mdt.yml
