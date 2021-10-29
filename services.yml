@@ -2,6 +2,21 @@
 - hosts: s-1799-proxy
   gather_facts: yes
 
+  pre_tasks:
+    - name: fix for kyl191.openvpn role - create /etc/openvpn/auth
+      file:
+        path: /etc/openvpn/auth
+        state: directory
+        mode: 0755
+      tags: proxy
+
+    - name: fix for kyl191.openvpn role - install package openvpn-auth-ldap
+      package:
+        state: present
+        name:
+          - openvpn-auth-ldap
+      tags: proxy
+
   roles:
     - { role: common/wireguard, tags: proxy }
     - { role: services/proxy, tags: proxy }

@@ -1,6 +1,4 @@
 ---
-iptables_path: /etc/iptables
-
 wg_path: /etc/wireguard
 wg_private_ip: 192.168.254.2
 wg_privkey: !vault |
@@ -14,6 +12,10 @@ wg_privkey: !vault |
 wg_pubkey: ARx8erKDdTYukz+EhGUIuQeE93O2MForGRplJ4SsxxQ=
 wg_peers:
   - { name: vps, endpoint: 213.183.53.156:51820, allowed_ips: 0.0.0.0/0, pubkey: 5zxSzu6eGDBQHWkNaCsYndt3/EnEkjtG3arknCkBIFk= }
+
+iptables_interfaces:
+  - ens18
+  - wg0
 
 app_path: /docker
 app_network_name: docker-apps

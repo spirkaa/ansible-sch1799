@@ -1,2 +1,51 @@
 ---
-dependencies: []
+dependencies:
+  - role: kyl191.openvpn
+    vars:
+      openvpn_server_hostname: vpn.licey1799.ru
+      openvpn_port: 1194
+      openvpn_domain_name: cao.obr.mos.ru
+      openvpn_masquerade_not_snat: true
+      openvpn_set_dns: false
+      openvpn_dualstack: false
+      openvpn_redirect_gateway: false
+      openvpn_topology: subnet
+      openvpn_server_network: 192.168.255.0
+      openvpn_server_netmask: 255.255.255.0
+      openvpn_duplicate_cn: true
+      openvpn_addl_server_options:
+        - sndbuf 0
+        - rcvbuf 0
+        - username-as-common-name
+      openvpn_addl_client_options:
+        - sndbuf 0
+        - rcvbuf 0
+      openvpn_client_register_dns: false
+      clients:
+        - client1
+      openvpn_push:
+        - route 172.19.8.0 255.255.254.0
+        - route 10.0.0.0 255.0.0.0
+        - route 194.135.112.139 255.255.255.255
+        - route 213.79.88.191 255.255.255.255
+        - dhcp-option DNS 10.89.87.63
+        - dhcp-option DOMAIN {{ openvpn_domain_name }}
+      openvpn_use_ldap: true
+      openvpn_base_dn: OU=SCH-1799,OU=Schools,DC=cao,DC=obr,DC=mos,DC=ru
+      openvpn_allowed_group: CN=1799-Svc-OpenVPN-Users,OU=Groups,{{ openvpn_base_dn }}
+      ldap:
+        url: ldap://{{ openvpn_domain_name }}
+        anonymous_bind: false
+        bind_dn: CN=u-1799-svc,OU=Teachers,{{ openvpn_base_dn }}
+        bind_password: !vault |
+                $ANSIBLE_VAULT;1.1;AES256
+                36373032373462643935323737373061653264613161666663363639623737363534613164653637
+                6432643333373164613261306638623665313231343936610a643162306665343730656531633433
+                37636431383133386662346463663130366266613763393135353966323766623861636464363639
+                6236623661666134620a353135366365303366633135633036653337393461396563633762366533
+                63636261343332303336653633313738323933653635333735366362623439373830
+        tls_enable: false
+        base_dn: "{{ openvpn_base_dn }}"
+        search_filter: (&(objectCategory=Person)(sAMAccountName=%u)(memberOf:1.2.840.113556.1.4.1941:={{ openvpn_allowed_group }}))
+        require_group: false
+        verify_client_cert: none

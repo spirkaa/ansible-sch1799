@@ -10,16 +10,20 @@
     name: networking
     state: restarted
 
+- name: save iptables
+  command: /usr/sbin/netfilter-persistent save
+
 - name: restart iptables
   service:
     name: netfilter-persistent
     state: restarted
+  listen: save iptables
 
 - name: restart docker
   service:
     name: docker
     state: restarted
-  listen: restart iptables
+  listen: save iptables
 
 - name: restart nginx-proxy-manager
   docker_container:

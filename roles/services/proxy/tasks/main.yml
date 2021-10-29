@@ -1,10 +1,18 @@
 ---
-- name: Configure static routes
+- name: Configure static routes (works in 1799-6 network only!)
   interfaces_file:
     iface: ens18
     option: up
-    value: ip route add 10/8 via 172.19.8.1
+    value: ip -4 route add {{ item }} via 172.19.8.1
   notify: restart networking
+  loop:
+    - 10/8
+    - 172.28.236.0/23
+    - 172.18.248.0/23
+    - 172.19.0.0/23
+    - 172.19.4.0/23
+    - 194.135.112.139/32
+    - 213.79.88.191/32
 
 - name: wireguard tasks
   include_tasks: wireguard.yml
