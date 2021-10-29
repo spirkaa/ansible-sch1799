@@ -5,7 +5,11 @@
     enabled: yes
     state: restarted
 
+- name: save iptables
+  command: /usr/sbin/netfilter-persistent save
+
 - name: restart iptables
   service:
     name: netfilter-persistent
     state: restarted
+  listen: save iptables

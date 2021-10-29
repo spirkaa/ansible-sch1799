@@ -1,6 +1,4 @@
 ---
-iptables_path: /etc/iptables
-
 wg_server_path: /etc/wireguard
 wg_server_private_ip: 192.168.254.1
 wg_server_port: 51820
@@ -15,3 +13,10 @@ wg_server_privkey: !vault |
 wg_server_pubkey: 5zxSzu6eGDBQHWkNaCsYndt3/EnEkjtG3arknCkBIFk=
 wg_peers:
   - { name: d21, pubkey: ARx8erKDdTYukz+EhGUIuQeE93O2MForGRplJ4SsxxQ=, private_ip: 192.168.254.2 }
+
+iptables_dest: 213.183.53.156
+iptables_to_dest: "{{ wg_peers[0].private_ip }}"
+iptables_forward_ports:
+  - { dest: "{{ iptables_dest }}", port: "80", proto: "tcp", comment: "http", to_dest: "{{ iptables_to_dest }}" }
+  - { dest: "{{ iptables_dest }}", port: "443", proto: "tcp", comment: "https", to_dest: "{{ iptables_to_dest }}" }
+  - { dest: "{{ iptables_dest }}", port: "1194", proto: "udp", comment: "openvpn", to_dest: "{{ iptables_to_dest }}" }
