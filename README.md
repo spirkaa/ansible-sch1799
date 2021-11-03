@@ -13,8 +13,12 @@
 ## Приложения
 
 * WireGuard VPN
+* OpenVPN
 * Nginx Proxy Manager
+* Portainer
+* Keycloak
 * GLPI
+* Outline Wiki
 * NMS (LibreNMS, SmokePing)
 * Microsoft Deployment Toolkit
 
@@ -34,8 +38,8 @@
     * Файл `vps.yml` - конфигурация VPS.
     * Файл `pve.yml` - конфигурация Proxmox.
     * Файл `vms.yml` - конфигурация виртуальных машин.
-    * Файл `services.yml` - установка и настройка приложений.
-1. Папка `inventories` содержит Inventory-файлы Ansible, разделенные по окружению (тестовое, рабочее).
+    * Файлы `services_*.yml` - установка и настройка приложений.
+1. Папка `inventories` содержит Inventory-файлы Ansible.
 1. Папка `roles` содержит роли Ansible, каждая из которых отвечает за отдельную часть конфигурации, обозначенную в названии папки и в файле `README.md` внутри.
 
 ## Как получить стандартно настроенный сервер без приложений
