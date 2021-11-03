@@ -1,0 +1,55 @@
+---
+- name: Create app folder
+  file:
+    path: "{{ app_path }}"
+    state: directory
+    recurse: yes
+
+- name: Copy app files
+  copy:
+    src: files/docker/
+    dest: "{{ app_path }}"
+    mode: 0644
+    directory_mode: 0755
+  register: copy_app_files
+  notify: restart containers
+
+- name: Copy templates
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  register: copy_templates
+  no_log: true
+  loop:
+    - { src: .env.j2, dest: "{{ app_path }}/.env", mode: 644 }
+  notify: restart containers
+
+- name: Pull images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+    force_source: yes
+    state: present
+  with_items: "{{ images_list }}"
+  register: pull_images
+  retries: 3
+  delay: 10
+  until: pull_images is not failed
+
+- name: Build and restart app containers
+  docker_compose:
+    project_src: "{{ app_path }}"
+    build: yes
+    state: present
+  register: build_containers
+  when: copy_app_files.changed or copy_templates.changed or pull_images.changed
+
+- name: Wait for webui become available
+  uri:
+    url: "{{ app_url }}"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1

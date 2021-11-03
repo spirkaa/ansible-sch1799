@@ -8,3 +8,4 @@
   roles:
     - { role: common/domain_join, tags: glpi }
     - { role: services/glpi, tags: glpi }
+    - { role: services/outline, tags: glpi }

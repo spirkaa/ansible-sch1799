@@ -1,0 +1,77 @@
+---
+app_path: /docker/outline
+images_list:
+  - postgres:alpine
+  - redis:alpine
+  - minio/minio:latest
+  - outlinewiki/outline:latest
+
+app_url: https://wiki.licey1799.ru
+
+outline_postgres_db: outline
+outline_postgres_user: outline
+outline_postgres_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          39393064626230393534626130313439623265303464643732306464643235663639633866653437
+          6635333237643436323966303038323164613535373234300a303831653461363662343439376233
+          64386431646265666636653862383561396634306133666632366562393062343562613936633163
+          3362646338393361350a643837626338386261363235663434386563633266633530366164653465
+          3466
+outline_database_url: postgres://{{ outline_postgres_user }}:{{ outline_postgres_password }}@outline-db:5432/{{ outline_postgres_db }}
+outline_pgsslmode: disable
+
+outline_minio_root_user: minio
+outline_minio_root_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          36363934346430646234313738656665386162313734666638646231333939623366653433343334
+          6236663633616638376138313339636335656562323535320a353735653964633065393163656437
+          33326565383931633863386132633563636462653861306234383737386163333463643361306535
+          6338326336623462660a363561613962373536636639313130346638306530643633343730376532
+          3532
+outline_minio_browser_redirect_url: https://wikidata-admin.corp.licey1799.ru
+
+outline_secret_key: generate_a_new_key
+outline_utils_secret: generate_a_new_key
+outline_redis_url: redis://outline-redis:6379
+outline_port: 3000
+outline_force_https: false
+outline_default_language: ru_RU
+outline_team_logo: https://glpi.licey1799.ru/pics/logos/sch1799-logo-2x.png
+
+outline_aws_access_key_id: "{{ outline_minio_root_user }}"
+outline_aws_secret_access_key: "{{ outline_minio_root_password }}"
+outline_aws_region: us-east-1
+outline_aws_s3_upload_bucket_url: https://wikidata.licey1799.ru
+outline_aws_s3_upload_bucket_name: outline
+outline_aws_s3_upload_max_size: 26214400
+outline_aws_s3_force_path_style: true
+outline_aws_s3_acl: private
+
+outline_oidc_client_id: svc-outline-wiki
+outline_oidc_client_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          62656130333463383334313132343937653965613830323938666631326134383364643237356563
+          3434326232613433613831326163356636326662616334310a306630366136303535333238393534
+          61313763353664623366666564393064653063613161393130336533303436373832383337373038
+          3066623535323466370a363632396436633036653835306330666330316463633362656630326561
+          34303139663436373964316136306565363131663835663266663634323866383134343736613436
+          3663376234613066333865653463656362626133373966373530
+outline_oidc_uri: https://sso.licey1799.ru/auth/realms/school/protocol/openid-connect
+outline_oidc_auth_uri: "{{outline_oidc_uri}}/auth"
+outline_oidc_token_uri: "{{outline_oidc_uri}}/token"
+outline_oidc_userinfo_uri: "{{outline_oidc_uri}}/userinfo"
+outline_oidc_username_claim: preferred_username
+outline_oidc_display_name: Единый вход
+outline_oidc_scopes: openid profile email
+
+outline_smtp_host: smtp.office365.com
+outline_smtp_port: 587
+outline_smtp_username: noreply@licey1799.ru
+outline_smtp_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63643462343838306139363864613238323539346364666231333733363938393033313630386233
+          3836333466336636346561633431383566616366316466350a333365653762353133323165393465
+          36383866323733653831343235376462383563303139313032376134316136646132613661396134
+          3733356464643164380a626438623061366538323265333666343366313938356637616461306133
+          66626134316237643162633233663734393934646336613763643166363234633363
+outline_smtp_secure: false

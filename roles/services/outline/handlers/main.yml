@@ -1,0 +1,8 @@
+---
+- name: restart containers
+  docker_compose:
+    project_src: "{{ app_path }}"
+    build: no
+    restarted: yes
+    state: present
+  when: not build_containers.changed

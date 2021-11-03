@@ -1,0 +1,48 @@
+version: '2'
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.31.253.0/24
+
+services:
+  outline-db:
+    image: postgres:alpine
+    container_name: outline-db
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    env_file: .env
+    restart: unless-stopped
+
+  outline-redis:
+    image: redis:alpine
+    container_name: outline-redis
+    restart: unless-stopped
+
+  outline-minio:
+    image: minio/minio:latest
+    container_name: outline-minio
+    command: "server /data --console-address :9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./data:/data
+    env_file: .env
+    restart: unless-stopped
+
+  outline:
+    image: outlinewiki/outline:latest
+    container_name: outline
+    user: root
+    command: sh -c "yarn sequelize:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"
+    ports:
+      - 3000:3000
+    env_file: .env
+    depends_on:
+      - outline-db
+      - outline-redis
+      - outline-minio
+    restart: unless-stopped
