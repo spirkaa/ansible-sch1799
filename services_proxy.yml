@@ -18,5 +18,7 @@
       tags: proxy
 
   roles:
+    - { role: common/domain_join, tags: proxy }
     - { role: common/wireguard, tags: proxy }
     - { role: services/proxy, tags: proxy }
+    - { role: services/keycloak, tags: proxy }

@@ -1,0 +1,35 @@
+version: '2'
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.31.252.0/24
+
+services:
+  keycloak-db:
+    image: postgres:alpine
+    container_name: keycloak-db
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    env_file: .env
+    restart: unless-stopped
+
+  keycloak:
+    image: jboss/keycloak:latest
+    container_name: keycloak
+    ports:
+      - 8080:8080
+    volumes:
+      - ./data:/data
+      - /etc/krb5.conf:/etc/krb5.conf:ro
+      - /etc/krb5.keytab:/etc/krb5.keytab:ro
+    environment:
+      - KEYCLOAK_IMPORT=/data/realm.json
+      - TZ=Europe/Moscow
+      - PROXY_ADDRESS_FORWARDING=true
+    env_file: .env
+    depends_on:
+      - keycloak-db
+    restart: unless-stopped
