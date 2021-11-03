@@ -42,11 +42,25 @@
   iptables:
     table: nat
     chain: PREROUTING
-    destination: "{{ item.dest }}/32"
+    destination: "{{ item.dest }}"
     protocol: "{{ item.proto }}"
     destination_port: "{{ item.port }}"
     to_destination: "{{ item.to_dest }}"
     jump: DNAT
+    action: insert
+    comment: "{{ item.comment }}"
+  notify: save iptables
+  loop: "{{ iptables_forward_ports }}"
+
+- name: wireguard - configure iptables - hairpin NAT
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    source: "{{ wg_network }}"
+    destination: "{{ item.to_dest }}"
+    protocol: "{{ item.proto }}"
+    destination_port: "{{ item.port }}"
+    jump: MASQUERADE
     action: insert
     comment: "{{ item.comment }}"
   notify: save iptables
