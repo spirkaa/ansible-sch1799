@@ -27,9 +27,9 @@
       warn: no
   when: not proxmoxlib_backup.stat.exists
 
-- name: Change Proxmox replication interval
-  lineinfile:
-    path: /lib/systemd/system/pvesr.timer
-    regexp: "^OnCalendar=minutely"
-    line: "OnCalendar=hourly"
-  notify: reload pvesr
+# - name: Change Proxmox replication interval
+#   lineinfile:
+#     path: /lib/systemd/system/pvesr.timer
+#     regexp: "^OnCalendar=minutely"
+#     line: "OnCalendar=hourly"
+#   notify: reload pvesr
