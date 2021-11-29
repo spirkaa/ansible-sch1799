@@ -1,5 +1,12 @@
 smartctl=/usr/sbin/smartctl
 cache=/var/cache/smart
 useSN=0
-sda
-sdb
+{% if inventory_hostname != "s-1799-6-pve" %}
+megaraid_disk_01 /dev/bus/0 -d megaraid,1
+megaraid_disk_02 /dev/bus/0 -d megaraid,2
+{% endif %}{% if inventory_hostname == "s-1799-6-pve" %}
+megaraid_disk_02 /dev/bus/0 -d megaraid,2
+megaraid_disk_03 /dev/bus/0 -d megaraid,3
+megaraid_disk_04 /dev/bus/0 -d megaraid,4
+megaraid_disk_05 /dev/bus/0 -d megaraid,5
+{% endif %}
