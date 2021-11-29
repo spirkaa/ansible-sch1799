@@ -1,0 +1,25 @@
+---
+- name: storcli - check if installed
+  command: dpkg-query -W storcli
+  ignore_errors: True
+  register: storcli_is_installed
+  changed_when: storcli_is_installed.rc != 0
+
+- block:
+    - name: storcli - copy package
+      copy:
+        src: files/{{ storcli_package_name }}
+        dest: /tmp
+        mode: 0644
+
+    - name: storcli - install package
+      package:
+        deb: /tmp/{{ storcli_package_name }}
+        state: present
+
+    - name: storcli - create symlink
+      file:
+        src: /opt/MegaRAID/storcli/storcli64
+        dest: /usr/local/sbin/storcli
+        state: link
+  when: storcli_version not in storcli_is_installed.stdout
