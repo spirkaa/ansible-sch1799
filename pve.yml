@@ -12,9 +12,9 @@
     - { role: common/sshd, tags: [pve, pve_sshd] }
     - { role: pve/kernel_modules, tags: [pve, pve_kernel_modules] }
     - { role: pve/postfix, tags: [pve, pve_postfix] }
+    - { role: pve/raid_monitor, tags: [pve, pve_raid_monitor] }
     - { role: common/snmp, tags: [pve, pve_snmp] }
     - { role: pve/snmp, tags: [pve, pve_snmp] }
     - { role: pve/smartd, tags: [pve, pve_smartd] }
-    - { role: pve/storcli, tags: [pve, pve_storcli] }
     - { role: common/wireguard, tags: [pve, pve_wireguard] }
     - { role: common/fusioninventory_agent, tags: [pve, pve_fusioninventory_agent] }

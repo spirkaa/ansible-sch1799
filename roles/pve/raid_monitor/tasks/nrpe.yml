@@ -1,0 +1,33 @@
+---
+- name: Install packages
+  package:
+    state: present
+    name:
+      - nagios-nrpe-server
+      - sudo
+
+- name: Download check_lsi_raid
+  get_url:
+    url: https://raw.githubusercontent.com/thomas-krenn/check_lsi_raid/master/check_lsi_raid
+    dest: "/usr/lib/nagios/plugins"
+    mode: a+x
+
+- name: Configure allowed hosts
+  lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    regexp: "^allowed_hosts=127.0.0.1,::1"
+    line: allowed_hosts=127.0.0.1,::1,{{ nrpe_allowed_host }}
+  notify: restart nagios-nrpe-server
+
+- name: Configure check command
+  lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    line: command[check_lsi_raid]=/usr/lib/nagios/plugins/check_lsi_raid -C 0 -p /usr/local/sbin/storcli
+    state: present
+  notify: restart nagios-nrpe-server
+
+- name: Copy sudoers.d file
+  copy:
+    src: files/nagios_sudo
+    dest: /etc/sudoers.d
+    mode: 0440

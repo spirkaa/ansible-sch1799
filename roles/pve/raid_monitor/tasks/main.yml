@@ -1,0 +1,6 @@
+---
+- name: storcli tasks
+  include_tasks: storcli.yml
+
+- name: nrpe tweaks
+  include_tasks: nrpe.yml

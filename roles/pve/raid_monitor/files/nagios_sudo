@@ -1,0 +1,3 @@
+Cmnd_Alias          C_STORCLI=/usr/local/sbin/storcli
+Defaults!C_STORCLI  !syslog, !pam_session
+nagios              ALL=(root) NOPASSWD: C_STORCLI

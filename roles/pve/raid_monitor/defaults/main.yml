@@ -1,3 +1,5 @@
 ---
 storcli_version: 007.1907.0000.0000-1
 storcli_package_name: storcli_{{ storcli_version }}_all.deb
+
+nrpe_allowed_host: 172.19.9.212  # LibreNMS
