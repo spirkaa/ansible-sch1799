@@ -9,6 +9,7 @@
   package:
     state: present
     name:
+      - sudo
       - tmux
       - rsync
       - wget
