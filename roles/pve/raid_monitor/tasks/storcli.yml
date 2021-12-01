@@ -20,6 +20,6 @@
     - name: Create symlink
       file:
         src: /opt/MegaRAID/storcli/storcli64
-        dest: /usr/local/sbin/storcli
+        dest: "{{ storcli_symlink }}"
         state: link
   when: storcli_version not in storcli_is_installed.stdout

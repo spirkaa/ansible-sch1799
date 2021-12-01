@@ -1,5 +1,9 @@
 ---
 storcli_version: 007.1907.0000.0000-1
 storcli_package_name: storcli_{{ storcli_version }}_all.deb
+storcli_symlink: /usr/local/sbin/storcli
 
+nrpe_plugin_source: https://raw.githubusercontent.com/thomas-krenn/check_lsi_raid/master/check_lsi_raid
+nrpe_plugins_path: /usr/lib/nagios/plugins
+nrpe_config_path: /etc/nagios/nrpe.cfg
 nrpe_allowed_host: 172.19.9.212  # LibreNMS

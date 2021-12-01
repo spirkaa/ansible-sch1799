@@ -6,23 +6,23 @@
       - nagios-nrpe-server
       - sudo
 
-- name: Download check_lsi_raid
+- name: Download check_lsi_raid plugin
   get_url:
-    url: https://raw.githubusercontent.com/thomas-krenn/check_lsi_raid/master/check_lsi_raid
-    dest: "/usr/lib/nagios/plugins"
+    url: "{{ nrpe_plugin_source }}"
+    dest: "{{ nrpe_plugins_path }}"
     mode: a+x
 
-- name: Configure allowed hosts
+- name: Configure nrpe allowed hosts
   lineinfile:
-    path: /etc/nagios/nrpe.cfg
-    regexp: "^allowed_hosts=127.0.0.1,::1"
+    path: "{{ nrpe_config_path }}"
+    regexp: "^allowed_hosts="
     line: allowed_hosts=127.0.0.1,::1,{{ nrpe_allowed_host }}
   notify: restart nagios-nrpe-server
 
-- name: Configure check command
+- name: Add check command
   lineinfile:
-    path: /etc/nagios/nrpe.cfg
-    line: command[check_lsi_raid]=/usr/lib/nagios/plugins/check_lsi_raid -C 0 -p /usr/local/sbin/storcli
+    path: "{{ nrpe_config_path }}"
+    line: command[check_lsi_raid]={{ nrpe_plugins_path }}/check_lsi_raid -C 0 -p {{ storcli_symlink }}
     state: present
   notify: restart nagios-nrpe-server
 
