@@ -43,9 +43,9 @@ glpi_mysql_password: !vault |
           3433613931393035390a353232643462366662353836636131326130333265396663626163313738
           64656233316637633331646165313366616237323066626131393962666236373733
 
-glpi_vhost_servername: glpi.licey1799.ru
-glpi_vhost_serveralias: s-1799-glpi s-1799-glpi.cao.obr.mos.ru
-glpi_vhost_serveradmin: helpdesk@licey1799.ru
+glpi_vhost_servername: glpi.{{ inventory__site }}
+glpi_vhost_serveralias: s-1799-glpi s-1799-glpi.{{ inventory__ldap_domain }}
+glpi_vhost_serveradmin: "{{ inventory__admin_mail }}"
 glpi_vhost_externalips:
   - 94.29.124.0/24  # D21, B03, K03, O15
   - 94.29.126.0/24  # D21, B03, K03, O15
@@ -54,9 +54,9 @@ glpi_vhost_externalips:
   - 172.16.0.0/12
   - 192.168.0.0/16
 
-glpi_postfix_smtp_server: smtp.office365.com
-glpi_postfix_smtp_port: 587
-glpi_postfix_smtp_username: support@licey1799.ru
+glpi_postfix_smtp_server: "{{ inventory__smtp_host }}"
+glpi_postfix_smtp_port: "{{ inventory__smtp_port }}"
+glpi_postfix_smtp_username: support@{{ inventory__site }}
 glpi_postfix_smtp_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           35326136303164376463343265393039643132353266346437643064633430383234633839316433

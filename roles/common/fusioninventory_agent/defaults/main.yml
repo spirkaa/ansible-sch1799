@@ -1,2 +1,2 @@
 ---
-glpi_server_url: https://glpi.licey1799.ru/plugins/fusioninventory/
+glpi_server_url: https://glpi.{{ inventory__site }}/plugins/fusioninventory/

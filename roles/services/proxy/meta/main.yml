@@ -2,9 +2,9 @@
 dependencies:
   - role: kyl191.openvpn
     vars:
-      openvpn_server_hostname: vpn.licey1799.ru
+      openvpn_server_hostname: vpn.{{ inventory__site }}
       openvpn_port: 1194
-      openvpn_domain_name: cao.obr.mos.ru
+      openvpn_domain_name: "{{ inventory__ldap_domain }}"
       openvpn_masquerade_not_snat: true
       openvpn_set_dns: false
       openvpn_dualstack: false
@@ -35,12 +35,12 @@ dependencies:
         - dhcp-option DNS 10.89.87.63
         - dhcp-option DOMAIN {{ openvpn_domain_name }}
       openvpn_use_ldap: true
-      openvpn_base_dn: OU=SCH-1799,OU=Schools,DC=cao,DC=obr,DC=mos,DC=ru
+      openvpn_base_dn: "{{ inventory__ldap_base_dn }}"
       openvpn_allowed_group: CN=1799-Svc-OpenVPN-Users,OU=Groups,{{ openvpn_base_dn }}
       ldap:
         url: ldap://{{ openvpn_domain_name }}
         anonymous_bind: false
-        bind_dn: CN=u-1799-svc,OU=Teachers,{{ openvpn_base_dn }}
+        bind_dn: "{{ inventory__ldap_bind_dn }}"
         bind_password: !vault |
                 $ANSIBLE_VAULT;1.1;AES256
                 36373032373462643935323737373061653264613161666663363639623737363534613164653637

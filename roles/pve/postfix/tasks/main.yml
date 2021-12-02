@@ -16,4 +16,5 @@
     - { src: sasl_passwd.j2, dest: sasl_passwd, mode: 600 }
     - { src: smtp_header_checks.j2, dest: smtp_header_checks, mode: 644 }
     - { src: main.cf.j2, dest: main.cf, mode: 644 }
+  no_log: true
   notify: postfix config changed

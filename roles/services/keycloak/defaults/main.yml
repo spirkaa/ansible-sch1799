@@ -4,7 +4,7 @@ images_list:
   - postgres:alpine
   - jboss/keycloak:latest
 
-app_host: sso.licey1799.ru
+app_host: sso.{{ inventory__site }}
 app_url: https://{{ app_host }}/auth
 
 keycloak_postgres_db: keycloak
@@ -35,38 +35,25 @@ keycloak_password: !vault |
 keycloak_realm_name: school
 keycloak_realm_display_name: Школа № 1799. Единый вход
 
-keycloak_smtp_host: smtp.office365.com
-keycloak_smtp_port: 587
-keycloak_smtp_username: noreply@licey1799.ru
-keycloak_smtp_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          63643462343838306139363864613238323539346364666231333733363938393033313630386233
-          3836333466336636346561633431383566616366316466350a333365653762353133323165393465
-          36383866323733653831343235376462383563303139313032376134316136646132613661396134
-          3733356464643164380a626438623061366538323265333666343366313938356637616461306133
-          66626134316237643162633233663734393934646336613763643166363234633363
+keycloak_smtp_host: "{{ inventory__smtp_host }}"
+keycloak_smtp_port: "{{ inventory__smtp_port }}"
+keycloak_smtp_username: "{{ inventory__smtp_username }}"
+keycloak_smtp_password: "{{ inventory__smtp_password }}"
 keycloak_smtp_starttls: true
 
-keycloak_domain: cao.obr.mos.ru
-keycloak_ldap_server: ldap://{{ keycloak_domain }}
-keycloak_ldap_base_dn: OU=SCH-1799,OU=Schools,DC=cao,DC=obr,DC=mos,DC=ru
-keycloak_ldap_bind_dn: CN=u-1799-svc,OU=Teachers,{{ keycloak_ldap_base_dn }}
-keycloak_ldap_bind_pass: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          36373032373462643935323737373061653264613161666663363639623737363534613164653637
-          6432643333373164613261306638623665313231343936610a643162306665343730656531633433
-          37636431383133386662346463663130366266613763393135353966323766623861636464363639
-          6236623661666134620a353135366365303366633135633036653337393461396563633762366533
-          63636261343332303336653633313738323933653635333735366362623439373830
+keycloak_ldap_server: ldap://{{ inventory__ldap_domain }}
+keycloak_ldap_base_dn: "{{ inventory__ldap_base_dn }}"
+keycloak_ldap_bind_dn: "{{ inventory__ldap_bind_dn }}"
+keycloak_ldap_bind_pass: "{{ inventory__ldap_bind_pass }}"
 keycloak_ldap_filter: (memberOf:1.2.840.113556.1.4.1941:=CN=1799-Svc-Keycloak-Users,OU=Groups,{{ keycloak_ldap_base_dn }})
 keycloak_ldap_groups_dn: OU=Groups,{{ keycloak_ldap_base_dn }}
 
-keycloak_ldap_kerberos_realm: "{{ keycloak_domain | upper }}"
+keycloak_ldap_kerberos_realm: "{{ inventory__ldap_domain | upper }}"
 keycloak_ldap_kerberos_keytab: /etc/krb5.keytab
 keycloak_ldap_kerberos_spn: HTTP/{{ app_host }}@{{ keycloak_ldap_kerberos_realm }}
 
 keycloak_office365_alias: office365-licey1799
-keycloak_office365_displayname: Office 365 (licey1799.ru)
+keycloak_office365_displayname: Office 365 ({{ inventory__site }})
 keycloak_office365_directory_id: 830e5e22-954a-4ce8-9451-115a1b6fdbcf
 keycloak_office365_client_id: f7347570-736e-46a5-8d84-8306c01943f5
 keycloak_office365_client_secret: !vault |
