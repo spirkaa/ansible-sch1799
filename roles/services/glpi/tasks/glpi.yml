@@ -11,6 +11,19 @@
   failed_when: false
 
 - block:
+    - name: Get content of GLPI installed version marker
+      slurp:
+        src: "{{ app_data_path }}/glpi_{{ glpi_version }}_installed"
+      register: glpi_installed_plugins
+
+    - name: Check if plugins needs to be updated
+      set_fact:
+        glpi_plugins_update: true
+      when: item.url not in glpi_installed_plugins['content'] | b64decode
+      loop: "{{ glpi_plugins }}"
+  when: glpi_version_marker.stat.exists
+
+- block:
     - name: Download and extract GLPI
       unarchive:
         src: "{{ glpi_url }}"
@@ -127,11 +140,12 @@
       changed_when: result.stdout | length > 0
 
     - name: Create installed version marker
-      file:
-        path: "{{ app_data_path }}/glpi_{{ glpi_version }}_installed"
-        state: touch
+      copy:
+        dest: "{{ app_data_path }}/glpi_{{ glpi_version }}_installed"
         mode: 0644
+        content: "{{ glpi_plugins }}"
 
   when: >
     (not glpi_version_marker.stat.exists) or
-    (glpi_dir.stdout | length == 0)
+    (glpi_dir.stdout | length == 0) or
+    glpi_plugins_update
