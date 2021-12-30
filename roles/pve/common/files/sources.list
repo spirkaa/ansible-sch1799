@@ -1,5 +1,5 @@
-deb http://mirror.yandex.ru/debian bullseye main contrib
-deb http://mirror.yandex.ru/debian bullseye-updates main contrib
+deb http://ftp.ru.debian.org/debian bullseye main contrib
+deb http://ftp.ru.debian.org/debian bullseye-updates main contrib
 
 # security updates
 deb http://security.debian.org bullseye-security main contrib
