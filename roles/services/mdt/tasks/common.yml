@@ -28,7 +28,7 @@
     name:
       - 7zip
       - open-shell
-      - notepadplusplus
+      - notepadplusplus.install
 
 - name: Server Roles - Install
   win_feature:
