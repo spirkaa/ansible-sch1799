@@ -16,5 +16,4 @@
     - { role: common/snmp, tags: [pve, pve_snmp] }
     - { role: pve/snmp, tags: [pve, pve_snmp] }
     - { role: pve/smartd, tags: [pve, pve_smartd] }
-    - { role: common/wireguard, tags: [pve, pve_wireguard] }
     - { role: common/fusioninventory_agent, tags: [pve, pve_fusioninventory_agent] }
